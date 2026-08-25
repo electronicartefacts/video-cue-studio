@@ -16,7 +16,7 @@
       </header>
 
       <section id="empty-state" class="empty-state">
-        <p class="eyebrow">EA / STUDIO TOOL 01</p>
+        <p class="eyebrow">EA STUDIO TOOL</p>
         <h1>VIDEO CUE<br />STUDIO</h1>
         <p class="lede">Frame-aware visual cue mapping.</p>
         <label class="primary-action" for="video-input">IMPORT VIDEO</label>
@@ -35,7 +35,10 @@
 
         <div class="player-wrap">
           <video id="video" playsinline preload="metadata"></video>
-          <div id="video-error" class="video-error" hidden></div>
+          <div id="video-error" class="video-error" hidden>
+            <p id="video-error-message"></p>
+            <button id="convert-video" type="button" hidden>PREPARE FOR PLAYBACK</button>
+          </div>
         </div>
 
         <div class="transport">

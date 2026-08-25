@@ -6,7 +6,7 @@ Video Cue Studio helps composers, sound designers, editors, and audiovisual arti
 
 ## Privacy
 
-Your media never leaves your device. The app uses the browser's local `File` and `URL.createObjectURL()` APIs; it has no backend, account, analytics, uploads, or tracking. Project metadata may be saved in the browser's local storage only to preserve the active mapping.
+Your media never leaves your device. The app uses the browser's local `File` and `URL.createObjectURL()` APIs; it has no backend, account, analytics, uploads, or tracking. If a browser cannot render a video codec, the optional FFmpeg WebAssembly engine is loaded on demand and creates a compatible preview entirely in the browser. Project metadata may be saved in the browser's local storage only to preserve the active mapping.
 
 ## Workflow
 
@@ -27,7 +27,7 @@ Your media never leaves your device. The app uses the browser's local `File` and
 
 ## Video compatibility and precision
 
-Supported formats and codecs are determined by the browser. A `.mov` file is a container and may fail if its internal codec cannot be decoded; no server-side conversion is attempted. HTML video seeks in seconds, so the frame nudge is an estimated 30 fps increment and is intentionally not advertised as guaranteed frame-perfect decoding.
+The direct player accepts browser-readable `video/*` files. If a format or codec (including a video track in a `.mov` or MP4 container) is not visually decodable, Video Cue Studio offers to prepare an H.264 MP4 preview locally through FFmpeg WebAssembly; no media is transferred to a server. Very large files still require sufficient browser memory. HTML video seeks in seconds, so the frame nudge is an estimated 30 fps increment and is intentionally not advertised as guaranteed frame-perfect decoding.
 
 ## Run locally
 
