@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="A private, local-first video cue mapping tool by Electronic Artefacts." />
+    <title>Video Cue Studio — Electronic Artefacts</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="masthead">
+        <a class="brand" href="./" aria-label="Electronic Artefacts, Video Cue Studio">ELECTRONIC ARTEFACTS</a>
+        <p>LOCAL VIDEO SPOTTING INSTRUMENT</p>
+      </header>
+
+      <section id="empty-state" class="empty-state">
+        <p class="eyebrow">EA / STUDIO TOOL 01</p>
+        <h1>VIDEO CUE<br />STUDIO</h1>
+        <p class="lede">Frame-aware visual cue mapping.</p>
+        <label class="primary-action" for="video-input">IMPORT VIDEO</label>
+        <input id="video-input" type="file" accept="video/*" hidden />
+        <button id="open-project" class="text-action" type="button">OPEN PROJECT</button>
+        <input id="project-input" type="file" accept="application/json,.json" hidden />
+        <p class="privacy">100% LOCAL PROCESSING<br /><span>No upload · No account · No tracking</span></p>
+      </section>
+
+      <section id="studio" class="studio" hidden>
+        <div class="session-bar">
+          <div><span class="status-dot"></span><span id="video-name">NO VIDEO</span></div>
+          <div id="video-meta">—</div>
+          <button id="new-video" class="text-action" type="button">CHANGE VIDEO</button>
+        </div>
+
+        <div class="player-wrap">
+          <video id="video" playsinline preload="metadata"></video>
+          <div id="video-error" class="video-error" hidden></div>
+        </div>
+
+        <div class="transport">
+          <button id="play-button" class="transport-play" type="button">PLAY</button>
+          <button id="mark-button" class="mark-button" type="button">MARK <kbd>M</kbd></button>
+          <div class="time-readout"><span id="current-time">00:00.000</span><span>/</span><span id="duration">00:00.000</span></div>
+          <label class="volume-control" aria-label="Volume"><span>VOL</span><input id="volume" type="range" min="0" max="1" value="1" step="0.01" /></label>
+          <button id="mute-button" class="text-action" type="button">MUTE</button>
+          <button id="end-session" class="text-action end-session" type="button">END SESSION</button>
+        </div>
+
+        <section class="timeline-panel" aria-label="Cue timeline">
+          <div class="timeline-labels"><span>00:00.000</span><span id="timeline-duration">00:00.000</span></div>
+          <div id="timeline" class="timeline" role="slider" aria-label="Video timeline" tabindex="0">
+            <div id="timeline-progress" class="timeline-progress"></div>
+            <div id="playhead" class="playhead"><span></span></div>
+            <div id="marker-layer" class="marker-layer"></div>
+          </div>
+          <div class="timeline-key"><span><i class="raw-key"></i> RAW</span><span><i class="valid-key"></i> VALIDATED</span><span id="marker-count">0 CUES</span></div>
+        </section>
+
+        <section id="precision-panel" class="precision-panel" hidden>
+          <div class="precision-heading"><span id="selected-marker-name">MARKER 01</span><span id="selected-status">RAW</span></div>
+          <div class="precision-time"><span id="selected-time">00:00.000</span><span id="selected-delta">ORIGINAL</span></div>
+          <div class="precision-controls">
+            <button id="previous-frame" type="button">← FRAME</button>
+            <button id="validate-marker" type="button">VALIDATE</button>
+            <button id="next-frame" type="button">FRAME →</button>
+          </div>
+          <div class="marker-edit">
+            <label for="marker-label">LABEL</label><input id="marker-label" type="text" maxlength="120" placeholder="Optional cue description" />
+            <button id="delete-marker" class="danger" type="button">DELETE</button>
+          </div>
+        </section>
+
+        <footer class="studio-footer">
+          <p>SPACE PLAY / PAUSE &nbsp;·&nbsp; M ADD MARKER &nbsp;·&nbsp; ⌘/CTRL Z UNDO</p>
+          <div class="export-menu"><button id="export-txt" type="button">EXPORT TXT</button><button id="export-csv" type="button">CSV</button><button id="export-json" type="button">JSON</button></div>
+        </footer>
+      </section>
+      <p id="toast" class="toast" role="status" aria-live="polite"></p>
+    </main>
+    <script type="module" src="src/app.js"></script>
+  </body>
+</html>
