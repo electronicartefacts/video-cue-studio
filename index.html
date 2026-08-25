@@ -50,6 +50,7 @@
           <button id="play-button" class="transport-play" type="button">PLAY</button>
           <button id="mark-button" class="mark-button" type="button">MARK <kbd>M</kbd></button>
           <div class="time-readout"><span id="current-time">00:00.000</span><span>/</span><span id="duration">00:00.000</span></div>
+          <label class="speed-control" for="playback-rate"><span>SPEED</span><select id="playback-rate" aria-label="Playback speed"><option value="0.25">0.25×</option><option value="0.5">0.5×</option><option value="0.75">0.75×</option><option value="1" selected>1×</option><option value="1.25">1.25×</option><option value="1.5">1.5×</option><option value="2">2×</option></select></label>
           <label class="volume-control" aria-label="Volume"><span>VOL</span><input id="volume" type="range" min="0" max="1" value="1" step="0.01" /></label>
           <button id="mute-button" class="text-action" type="button">MUTE</button>
           <button id="end-session" class="text-action end-session" type="button">END SESSION</button>

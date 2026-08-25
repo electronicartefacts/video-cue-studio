@@ -13,7 +13,7 @@ Your media never leaves your device. The app uses the browser's local `File` and
 1. Import a video supported by your browser.
 2. Play it and press **M** (or MARK) to capture raw cues without stopping playback.
 3. Select a cue to pause and seek to it; drag it on the timeline while watching the image scrub.
-4. Use the frame controls or arrow keys for a small visual nudge, then validate it.
+4. Use the SPEED selector (0.25× to 2×) for fast passages, then use the frame controls or arrow keys for a small visual nudge and validate it.
 5. Export TXT, CSV, or a reopenable JSON project.
 
 ## Shortcuts
