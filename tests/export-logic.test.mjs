@@ -1,0 +1,12 @@
+import assert from 'node:assert/strict';
+import test from 'node:test';
+import { createLogicMarkerWavBuffer } from '../src/export-logic.js';
+
+const id = (view, offset) => String.fromCharCode(...new Uint8Array(view.buffer, offset, 4));
+function parseWav(buffer) { const view = new DataView(buffer); assert.equal(id(view, 0), 'RIFF'); assert.equal(id(view, 8), 'WAVE'); assert.equal(view.getUint32(4, true) + 8, buffer.byteLength); const chunks = new Map(); let offset = 12; while (offset < buffer.byteLength) { const name = id(view, offset), size = view.getUint32(offset + 4, true), start = offset + 8; assert.ok(start + size <= buffer.byteLength, `${name} does not fit`); chunks.set(name, { start, size }); offset = start + size + (size & 1); } assert.equal(offset, buffer.byteLength); return { view, chunks }; }
+
+test('maps one second to sample 48000 with a valid RIFF cue', () => { const result = createLogicMarkerWavBuffer({ duration: 2, markers:[{ time:1, label:'One' }] }); const {view,chunks}=parseWav(result.buffer); assert.equal(chunks.get('fmt ').size,16); assert.equal(view.getUint32(chunks.get('fmt ').start + 4, true),48000); assert.equal(view.getUint32(chunks.get('cue ').start,true),1); assert.equal(view.getUint32(chunks.get('cue ').start + 4 + 20, true),48000); assert.ok(chunks.has('data')); assert.ok(chunks.has('LIST')); });
+test('maps half a second to sample 24000', () => { const { cues } = createLogicMarkerWavBuffer({ duration:1, markers:[{time:.5}] }); assert.equal(cues[0].sampleOffset,24000); });
+test('orders input markers by time and clamps invalid ranges', () => { const { cues,totalSamples } = createLogicMarkerWavBuffer({ duration:1, markers:[{time:.8},{time:-2},{time:3}] }); assert.deepEqual(cues.map(({sampleOffset})=>sampleOffset),[0,38400,totalSamples]); });
+test('writes Unicode labels as padded LIST adtl labl chunks', () => { const { buffer } = createLogicMarkerWavBuffer({duration:1,markers:[{time:.1,label:'Éclat 01'}]}); const {view,chunks}=parseWav(buffer); const list=chunks.get('LIST'); assert.equal(id(view,list.start),'adtl'); assert.equal(id(view,list.start+4),'labl'); assert.equal(view.getUint32(list.start+12,true),1); });
+test('rejects empty marker exports', () => assert.throws(() => createLogicMarkerWavBuffer({duration:1,markers:[]})));

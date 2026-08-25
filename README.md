@@ -25,6 +25,14 @@ Your media never leaves your device. The app uses the browser's local `File` and
 | `Left` / `Right` | Nudge selected marker by an estimated 1/30 second |
 | `Cmd/Ctrl + Z` | Undo |
 
+## Logic Pro export
+
+Validate the cues you want to transfer, then select **LOGIC**. The download is a mono, silent 48 kHz / 16-bit PCM WAV marker carrier: each validated cue is written as a standard RIFF `cue ` point, with a `LIST` / `adtl` / `labl` label. The binary structure is `RIFF/WAVE → fmt  → data → cue  → LIST/adtl/labl`; cue offsets use `Math.round(timeSeconds × 48000)`. The silent `data` section is allocated directly as binary PCM rather than as a JavaScript sample array (a five-minute carrier is about 28.8 MB of PCM).
+
+In Logic Pro, use **Navigate → Other → Import Marker from Audio File**, choose the exported WAV, then verify alignment against your video before a critical session.
+
+This feature relies on standard WAV audio markers, but Logic Pro compatibility is not validated automatically by this browser application. Always test the exported carrier in your target Logic Pro workflow.
+
 ## Video compatibility and precision
 
 The direct player accepts browser-readable `video/*` files. If a format or codec (including a video track in a `.mov` or MP4 container) is not visually decodable, Video Cue Studio offers to prepare an H.264 MP4 preview locally through FFmpeg WebAssembly; no media is transferred to a server. Very large files still require sufficient browser memory. HTML video seeks in seconds, so the frame nudge is an estimated 30 fps increment and is intentionally not advertised as guaranteed frame-perfect decoding.
