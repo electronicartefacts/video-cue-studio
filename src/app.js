@@ -1,6 +1,6 @@
 const $ = (id) => document.getElementById(id);
 const video = $('video');
-const state = { markers: [], selectedId: null, history: [], file: null, objectUrl: null, project: null, duration: 0, dragging: false, ffmpeg: null, converting: false };
+const state = { markers: [], selectedId: null, history: [], file: null, objectUrl: null, project: null, duration: 0, dragging: false, ffmpeg: null, converting: false, compatiblePreview: false, frameCheck: null, frameRendered: false };
 const els = Object.fromEntries(['empty-state','studio','video-input','project-input','open-project','new-video','video-name','video-meta','video-error','video-error-message','convert-video','play-button','mark-button','current-time','duration','timeline-duration','timeline','timeline-progress','playhead','marker-layer','marker-count','precision-panel','selected-marker-name','selected-status','selected-time','selected-delta','previous-frame','next-frame','validate-marker','delete-marker','marker-label','volume','mute-button','end-session','export-txt','export-csv','export-json','toast'].map(id => [id, $(id)]));
 
 const formatTime = (seconds = 0) => { const ms = Math.max(0, Math.round(seconds * 1000)); const s = Math.floor(ms / 1000); return `${String(Math.floor(s / 60)).padStart(2,'0')}:${String(s % 60).padStart(2,'0')}.${String(ms % 1000).padStart(3,'0')}`; };
@@ -26,8 +26,19 @@ function download(name, content, type='text/plain;charset=utf-8') { const url = 
 function exportProject() { return { schemaVersion:1, tool:'Electronic Artefacts Video Cue Studio', video:{ filename:state.file?.name || state.project?.video?.filename || 'Unlinked video', duration:state.duration }, markers:state.markers.map(({id,time,status,label})=>({id,time,status,label})) }; }
 function resetVideo() { if(state.objectUrl) URL.revokeObjectURL(state.objectUrl); video.removeAttribute('src'); video.load(); state.objectUrl=null; state.file=null; }
 function showVideoAssist(message, canConvert = true) { els['video-error-message'].textContent = message; els['convert-video'].hidden = !canConvert; els['video-error'].hidden = false; }
-function loadVideo(file) { if (!file) return; resetVideo(); state.file=file; state.objectUrl=URL.createObjectURL(file); els['video-error'].hidden=true; video.src=state.objectUrl; video.load(); }
+function loadVideo(file) { if (!file) return; resetVideo(); state.file=file; state.compatiblePreview=false; state.objectUrl=URL.createObjectURL(file); els['video-error'].hidden=true; video.src=state.objectUrl; video.load(); }
 function setStudio() { els['empty-state'].hidden=true; els.studio.hidden=false; }
+function monitorVideoFrames() {
+  if (state.compatiblePreview || state.converting || !state.file) return;
+  if (typeof video.requestVideoFrameCallback !== 'function') return;
+  clearTimeout(state.frameCheck); state.frameRendered = false;
+  video.requestVideoFrameCallback(() => { state.frameRendered = true; clearTimeout(state.frameCheck); });
+  state.frameCheck = setTimeout(() => {
+    if (state.frameRendered || state.compatiblePreview || state.converting) return;
+    showVideoAssist('No video frame was produced by this browser decoder. Preparing a compatible local preview now — your original file remains on your device.', false);
+    prepareForPlayback();
+  }, 1800);
+}
 async function prepareForPlayback() {
   if (!state.file || state.converting) return;
   state.converting = true; video.pause(); els['convert-video'].hidden = true;
@@ -50,7 +61,7 @@ async function prepareForPlayback() {
     const data = await state.ffmpeg.readFile(output);
     await state.ffmpeg.deleteFile(input); await state.ffmpeg.deleteFile(output);
     if (state.objectUrl) URL.revokeObjectURL(state.objectUrl);
-    state.objectUrl = URL.createObjectURL(new Blob([data.buffer], { type:'video/mp4' }));
+    state.compatiblePreview = true; state.objectUrl = URL.createObjectURL(new Blob([data.buffer], { type:'video/mp4' }));
     els['video-error'].hidden = true; video.src = state.objectUrl; video.load(); toast('LOCAL PREVIEW READY');
   } catch (error) {
     console.error(error); showVideoAssist('This file could not be prepared by the local browser engine. Try a smaller file or a browser-compatible H.264 MP4.', false);
@@ -59,8 +70,8 @@ async function prepareForPlayback() {
 
 els['video-input'].addEventListener('change', e => loadVideo(e.target.files[0])); els['new-video'].addEventListener('click',()=>els['video-input'].click()); els['open-project'].addEventListener('click',()=>els['project-input'].click());
 els['project-input'].addEventListener('change', async e => { try { const project=JSON.parse(await e.target.files[0].text()); if(project.schemaVersion !== 1 || !Array.isArray(project.markers)) throw Error(); snapshot(); state.project=project; state.markers=project.markers.map(m=>({...m,originalTime:m.time,label:m.label || '',status:m.status === 'validated' ? 'validated':'raw'})); state.selectedId=null; state.duration=project.video?.duration || 0; setStudio(); els['video-name'].textContent=`${project.video?.filename || 'UNLINKED VIDEO'} — RELOAD ORIGINAL VIDEO`; els['video-meta'].textContent='Markers restored locally'; render(); toast('PROJECT OPENED'); } catch { toast('INVALID VIDEO CUE STUDIO JSON'); } });
-video.addEventListener('loadedmetadata', () => { state.duration=video.duration; setStudio(); els['video-name'].textContent=state.file?.name || state.project?.video?.filename || 'LOCAL VIDEO'; els['video-meta'].textContent=`${video.videoWidth || '—'} × ${video.videoHeight || '—'} · ${formatTime(video.duration)}`; if (!video.videoWidth || !video.videoHeight) showVideoAssist('Your browser can read the audio, but cannot render this video codec. Prepare a local, browser-compatible preview to continue.', true); else els['video-error'].hidden=true; render(); save(); });
-video.addEventListener('error', () => showVideoAssist('This browser cannot decode this video directly. Prepare a local, browser-compatible preview to continue.', true)); video.addEventListener('timeupdate',render); video.addEventListener('play',()=>els['play-button'].textContent='PAUSE'); video.addEventListener('pause',()=>els['play-button'].textContent='PLAY');
+video.addEventListener('loadedmetadata', () => { state.duration=video.duration; setStudio(); els['video-name'].textContent=state.file?.name || state.project?.video?.filename || 'LOCAL VIDEO'; els['video-meta'].textContent=`${video.videoWidth || '—'} × ${video.videoHeight || '—'} · ${formatTime(video.duration)}`; if ((!video.videoWidth || !video.videoHeight) && !state.compatiblePreview) { showVideoAssist('Your browser can read the audio, but cannot render this video codec. Preparing a compatible local preview now.', false); prepareForPlayback(); } else els['video-error'].hidden=true; render(); save(); });
+video.addEventListener('playing', monitorVideoFrames); video.addEventListener('error', () => { if (state.compatiblePreview) { showVideoAssist('The local preview could not be rendered by this browser. Try Chrome or Safari with the original video.', false); return; } showVideoAssist('This browser cannot decode this video directly. Preparing a compatible local preview now.', false); prepareForPlayback(); }); video.addEventListener('timeupdate',render); video.addEventListener('play',()=>els['play-button'].textContent='PAUSE'); video.addEventListener('pause',()=>els['play-button'].textContent='PLAY');
 els['convert-video'].addEventListener('click', prepareForPlayback); els['play-button'].addEventListener('click',()=>video.paused?video.play():video.pause()); els['mark-button'].addEventListener('click',addMarker); els.timeline.addEventListener('click',e=>{ if(!state.dragging) video.currentTime=clamp((e.clientX-els.timeline.getBoundingClientRect().left)/els.timeline.getBoundingClientRect().width*state.duration); });
 els['previous-frame'].addEventListener('click',()=>{snapshot();moveSelected(video.currentTime - 1/30)}); els['next-frame'].addEventListener('click',()=>{snapshot();moveSelected(video.currentTime + 1/30)});
 els['validate-marker'].addEventListener('click',()=>{ const marker=selected(); if(!marker)return; snapshot(); marker.status=marker.status==='validated'?'raw':'validated';save();render(); }); els['delete-marker'].addEventListener('click',()=>{ if(!selected())return; snapshot(); state.markers=state.markers.filter(m=>m.id!==state.selectedId); state.selectedId=null;save();render();toast('MARKER DELETED'); });
