@@ -18,6 +18,10 @@ Your media never leaves your device. The app uses the browser's local `File` and
 For timeline calibration, drag a cue normally for a fast reposition. Hold it for two seconds before moving to enter **Precision Drag**; each horizontal pixel then moves the cue at one fiftieth of the normal timeline scale while the displayed frame follows the cue.
 5. Export TXT, CSV, or a reopenable JSON project.
 
+## Cue layers
+
+Every project starts with one `CUES` layer. Add, rename, recolor, hide, or select layers for separate manual passes such as structure, gaze, impact, or light. Each marker belongs to exactly one layer; number keys select layers by their displayed order, and `M` writes directly to the active layer. TXT, CSV, JSON, and Logic exports retain the project markers across layers.
+
 ## Shortcuts
 
 | Shortcut | Action |

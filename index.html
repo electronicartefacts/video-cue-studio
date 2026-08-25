@@ -56,18 +56,30 @@
           <button id="end-session" class="text-action end-session" type="button">END SESSION</button>
         </div>
 
-        <section class="timeline-panel" aria-label="Cue timeline">
-          <div class="timeline-labels"><span>00:00.000</span><span id="timeline-duration">00:00.000</span></div>
-          <div id="timeline" class="timeline" role="slider" aria-label="Video timeline" tabindex="0">
-            <div id="timeline-progress" class="timeline-progress"></div>
-            <div id="playhead" class="playhead"><span></span></div>
-            <div id="marker-layer" class="marker-layer"></div>
-          </div>
-          <div class="timeline-key"><span><i class="raw-key"></i> RAW</span><span><i class="valid-key"></i> VALIDATED</span><span id="drag-mode">HOLD 2S FOR PRECISION</span><span id="marker-count">0 CUES</span></div>
-        </section>
+        <div class="cue-workspace">
+          <aside class="layers-panel" aria-label="Cue layers">
+            <div class="panel-title">CUE LAYERS</div>
+            <div id="layers-list" class="layers-list"></div>
+            <div class="layer-add"><input id="new-layer-name" type="text" maxlength="28" placeholder="NEW LAYER" /><button id="add-layer" type="button">+ ADD</button></div>
+            <div id="active-layer-tools" class="active-layer-tools">
+              <input id="active-layer-name" type="text" maxlength="28" aria-label="Active layer name" />
+              <input id="active-layer-color" type="color" aria-label="Active layer color" />
+              <button id="toggle-active-layer" type="button">HIDE</button><button id="delete-layer" class="danger" type="button">DELETE</button>
+            </div>
+            <div id="delete-layer-tools" class="delete-layer-tools" hidden><span id="delete-layer-copy"></span><select id="move-layer-target" aria-label="Move markers to layer"></select><button id="move-layer-markers" type="button">MOVE TO</button><button id="delete-layer-markers" class="danger" type="button">DELETE ALL</button></div>
+          </aside>
+          <section class="timeline-panel" aria-label="Cue timeline">
+            <div class="timeline-labels"><span>00:00.000</span><span id="timeline-duration">00:00.000</span></div>
+            <div id="timeline" class="timeline" aria-label="Video timeline" tabindex="0">
+              <div id="timeline-progress" class="timeline-progress"></div><div id="playhead" class="playhead"><span></span></div><div id="layer-timelines" class="layer-timelines"></div>
+            </div>
+            <div class="timeline-key"><span><i class="raw-key"></i> RAW</span><span><i class="valid-key"></i> VALIDATED</span><span id="drag-mode">HOLD 2S FOR PRECISION</span><span id="marker-count">0 CUES</span></div>
+          </section>
+        </div>
 
         <section id="precision-panel" class="precision-panel" hidden>
           <div class="precision-heading"><span id="selected-marker-name">MARKER 01</span><span id="selected-status">RAW</span></div>
+          <div class="marker-layer-field"><label for="marker-layer-select">LAYER</label><select id="marker-layer-select" aria-label="Marker layer"></select></div>
           <div class="precision-time"><span id="selected-time">00:00.000</span><span id="selected-delta">ORIGINAL</span></div>
           <div class="precision-controls">
             <button id="previous-frame" type="button">← FRAME</button>
