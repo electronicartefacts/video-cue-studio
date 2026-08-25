@@ -23,6 +23,10 @@
         <input id="video-input" type="file" accept="video/*" hidden />
         <button id="open-project" class="text-action" type="button">OPEN PROJECT</button>
         <input id="project-input" type="file" accept="application/json,.json" hidden />
+        <div id="import-progress" class="import-progress" role="status" aria-live="polite" hidden>
+          <div><span id="import-status">OPENING LOCAL VIDEO</span><span id="import-percent">—</span></div>
+          <div class="progress-track"><span id="import-progress-bar"></span></div>
+        </div>
         <p class="privacy">100% LOCAL PROCESSING<br /><span>No upload · No account · No tracking</span></p>
       </section>
 
@@ -37,6 +41,7 @@
           <video id="video" playsinline preload="metadata"></video>
           <div id="video-error" class="video-error" hidden>
             <p id="video-error-message"></p>
+            <div id="decode-progress" class="decode-progress" hidden><div class="progress-track"><span id="decode-progress-bar"></span></div><span id="decode-percent">0%</span></div>
             <button id="convert-video" type="button" hidden>PREPARE FOR PLAYBACK</button>
           </div>
         </div>
