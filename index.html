@@ -97,7 +97,7 @@
 
         <footer class="studio-footer">
           <p>SPACE PLAY / PAUSE &nbsp;·&nbsp; M ADD MARKER &nbsp;·&nbsp; ⌘/CTRL Z UNDO</p>
-          <div class="export-menu"><button id="export-txt" type="button">EXPORT TXT</button><button id="export-csv" type="button">CSV</button><button id="export-json" type="button">JSON</button><button id="export-logic" type="button" title="Logic Pro marker carrier · 48 kHz WAV · local export">LOGIC</button></div>
+          <div class="export-menu"><button id="export-txt" type="button">EXPORT TXT</button><button id="export-csv" type="button">CSV</button><button id="export-json" type="button">JSON</button><label class="logic-rate" for="logic-sample-rate">LOGIC <select id="logic-sample-rate" title="Match this to your Logic Pro project sample rate"><option value="48000">48 kHz</option><option value="44100">44.1 kHz</option></select></label><button id="export-logic" type="button" title="Logic Pro marker carrier · match the sample rate to your Logic project">EXPORT</button></div>
         </footer>
       </section>
       <p id="toast" class="toast" role="status" aria-live="polite"></p>

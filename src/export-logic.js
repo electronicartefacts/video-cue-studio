@@ -40,7 +40,11 @@ export function createLogicMarkerWavBuffer({ duration, markers, sampleRate = 480
   view.setUint16(offset, 2, true); offset += 2; view.setUint16(offset, 16, true); offset += 2;
   fourCC(view, offset, 'data'); offset += 4; view.setUint32(offset, dataSize, true); offset += 4 + dataSize;
   fourCC(view, offset, 'cue '); offset += 4; view.setUint32(offset, cueSize, true); offset += 4; view.setUint32(offset, cues.length, true); offset += 4;
-  for (const cue of cues) { view.setUint32(offset, cue.id, true); offset += 4; view.setUint32(offset, cue.sampleOffset, true); offset += 4; fourCC(view, offset, 'data'); offset += 4; view.setUint32(offset, 0, true); offset += 4; view.setUint32(offset, 0, true); offset += 4; view.setUint32(offset, cue.sampleOffset, true); offset += 4; }
+  // A PCM WAVE file with one data chunk has no playlist position.  Keeping
+  // dwPosition at zero is important: the actual cue time is the sample offset.
+  // Writing the offset in both fields can make readers that combine them place
+  // every marker late (sometimes by the cue time a second time).
+  for (const cue of cues) { view.setUint32(offset, cue.id, true); offset += 4; view.setUint32(offset, 0, true); offset += 4; fourCC(view, offset, 'data'); offset += 4; view.setUint32(offset, 0, true); offset += 4; view.setUint32(offset, 0, true); offset += 4; view.setUint32(offset, cue.sampleOffset, true); offset += 4; }
   fourCC(view, offset, 'LIST'); offset += 4; view.setUint32(offset, adtlContentSize, true); offset += 4; fourCC(view, offset, 'adtl'); offset += 4;
   for (const { cue, bytes } of labelChunks) { const size = 4 + bytes.length; fourCC(view, offset, 'labl'); offset += 4; view.setUint32(offset, size, true); offset += 4; view.setUint32(offset, cue.id, true); offset += 4; new Uint8Array(buffer, offset, bytes.length).set(bytes); offset += bytes.length; if (size & 1) { view.setUint8(offset, 0); offset += 1; } }
   return { buffer, cues, totalSamples, sampleRate };

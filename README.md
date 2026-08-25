@@ -33,7 +33,7 @@ Every project starts with one `CUES` layer. Add, rename, recolor, hide, or selec
 
 ## Logic Pro export
 
-Validate the cues you want to transfer, then select **LOGIC**. The download is a mono, silent 48 kHz / 16-bit PCM WAV marker carrier: each validated cue is written as a standard RIFF `cue ` point, with a `LIST` / `adtl` / `labl` label. The binary structure is `RIFF/WAVE → fmt  → data → cue  → LIST/adtl/labl`; cue offsets use `Math.round(timeSeconds × 48000)`. The silent `data` section is allocated directly as binary PCM rather than as a JavaScript sample array (a five-minute carrier is about 28.8 MB of PCM).
+Validate the cues you want to transfer, choose the **same sample rate as the Logic project** (48 kHz or 44.1 kHz), then select **EXPORT**. The download is a mono, silent 16-bit PCM WAV marker carrier: each validated cue is written as a standard RIFF `cue ` point, with a `LIST` / `adtl` / `labl` label. The binary structure is `RIFF/WAVE → fmt  → data → cue  → LIST/adtl/labl`; a PCM cue uses a zero playlist position and `Math.round(timeSeconds × sampleRate)` as its actual sample offset. The silent `data` section is allocated directly as binary PCM rather than as a JavaScript sample array (a five-minute 48 kHz carrier is about 28.8 MB of PCM).
 
 In Logic Pro, use **Navigate → Other → Import Marker from Audio File**, choose the exported WAV, then verify alignment against your video before a critical session.
 
