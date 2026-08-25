@@ -15,6 +15,7 @@ button { color:inherit; cursor:pointer; }
 .primary-action,.mark-button { display:inline-flex; align-items:center; justify-content:center; background:var(--acid); color:#101207; border:0; padding:14px 21px; font-weight:500; }
 .text-action { background:transparent; border:0; padding:10px 0; color:var(--muted); text-decoration:underline; text-underline-offset:4px; }
 .empty-state .text-action { margin-left:22px; }
+.empty-state .restore-session{margin-left:14px;color:var(--acid)}
 .import-progress { margin-top:26px; max-width:360px; color:var(--muted); font-size:10px; }.import-progress>div:first-child{display:flex;justify-content:space-between;margin-bottom:9px}.progress-track{height:3px;background:var(--line);overflow:hidden}.progress-track span{display:block;width:4%;height:100%;background:var(--acid);transition:width .2s ease}.import-progress .progress-track span{animation:loading-pulse 1.15s ease-in-out infinite alternate}@keyframes loading-pulse{to{width:62%}}
 .privacy { border-top:1px solid var(--line); margin-top:64px; padding-top:13px; line-height:1.7; }.privacy span { color:var(--ink); }
 .studio { padding-top:22px; }.session-bar,.transport,.studio-footer,.precision-heading,.precision-time,.marker-edit { display:flex; align-items:center; justify-content:space-between; gap:16px; }
