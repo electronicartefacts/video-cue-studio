@@ -3,7 +3,7 @@ import { createLogicMarkerWav } from './export-logic.js';
 const $ = (id) => document.getElementById(id);
 const video = $('video');
 const state = { markers: [], selectedId: null, history: [], file: null, objectUrl: null, project: null, duration: 0, dragging: false, ffmpeg: null, converting: false, compatiblePreview: false, frameCheck: null, frameRendered: false, playbackRate: 1 };
-const els = Object.fromEntries(['empty-state','studio','video-input','project-input','open-project','new-video','video-name','video-meta','import-progress','import-status','import-percent','import-progress-bar','video-error','video-error-message','decode-progress','decode-progress-bar','decode-percent','convert-video','play-button','mark-button','current-time','duration','timeline-duration','timeline','timeline-progress','playhead','marker-layer','marker-count','precision-panel','selected-marker-name','selected-status','selected-time','selected-delta','previous-frame','next-frame','validate-marker','delete-marker','marker-label','playback-rate','volume','mute-button','end-session','export-txt','export-csv','export-json','export-logic','toast'].map(id => [id, $(id)]));
+const els = Object.fromEntries(['empty-state','studio','video-input','project-input','open-project','new-video','video-name','video-meta','import-progress','import-status','import-percent','import-progress-bar','video-error','video-error-message','decode-progress','decode-progress-bar','decode-percent','convert-video','play-button','mark-button','current-time','duration','timeline-duration','timeline','timeline-progress','playhead','marker-layer','marker-count','drag-mode','precision-panel','selected-marker-name','selected-status','selected-time','selected-delta','previous-frame','next-frame','validate-marker','delete-marker','marker-label','playback-rate','volume','mute-button','end-session','export-txt','export-csv','export-json','export-logic','toast'].map(id => [id, $(id)]));
 
 const formatTime = (seconds = 0) => { const ms = Math.max(0, Math.round(seconds * 1000)); const s = Math.floor(ms / 1000); return `${String(Math.floor(s / 60)).padStart(2,'0')}:${String(s % 60).padStart(2,'0')}.${String(ms % 1000).padStart(3,'0')}`; };
 const selected = () => state.markers.find(m => m.id === state.selectedId);
@@ -29,10 +29,17 @@ function moveSelected(time) { const marker = selected(); if (!marker) return; ma
 function renderDrag(marker, markerElement) { const position = `${marker.time / (state.duration || 1) * 100}%`; markerElement.style.left = position; els.playhead.style.left = position; els['timeline-progress'].style.width = position; els['current-time'].textContent = formatTime(marker.time); els['selected-time'].textContent = formatTime(marker.time); const delta = Math.round((marker.time - marker.originalTime) * 1000); els['selected-delta'].textContent = delta ? `Δ ${delta > 0 ? '+' : ''}${delta} MS` : 'ORIGINAL'; }
 function startDrag(event) {
   event.preventDefault(); event.stopPropagation(); const marker = state.markers.find((item) => item.id === event.currentTarget.dataset.markerId); if (!marker) return;
-  snapshot(); state.selectedId = marker.id; state.dragging = true; video.pause(); const markerElement = event.currentTarget; markerElement.classList.add('selected'); markerElement.setPointerCapture?.(event.pointerId);
-  const move = (pointerEvent) => { const rect = els.timeline.getBoundingClientRect(); marker.time = clamp((pointerEvent.clientX - rect.left) / rect.width * state.duration); video.currentTime = marker.time; renderDrag(marker, markerElement); };
-  const end = () => { state.dragging = false; markerElement.removeEventListener('pointermove', move); markerElement.removeEventListener('pointerup', end); markerElement.removeEventListener('pointercancel', end); state.markers.sort((a, b) => a.time - b.time); save(); render(); };
-  markerElement.addEventListener('pointermove', move); markerElement.addEventListener('pointerup', end); markerElement.addEventListener('pointercancel', end);
+  snapshot(); state.selectedId = marker.id; state.dragging = true; video.pause();
+  const markerElement = event.currentTarget; let fineMode = false; let lastX = event.clientX; let fineOriginX = event.clientX; let fineOriginTime = marker.time;
+  markerElement.classList.add('selected'); markerElement.setPointerCapture?.(event.pointerId); els['drag-mode'].textContent = 'DRAG TO ALIGN';
+  const precisionTimer = setTimeout(() => { fineMode = true; fineOriginX = lastX; fineOriginTime = marker.time; markerElement.classList.add('precision-drag'); els['drag-mode'].textContent = 'PRECISION DRAG · 1/50 SCALE'; toast('PRECISION DRAG'); }, 2000);
+  const move = (pointerEvent) => {
+    lastX = pointerEvent.clientX; const rect = els.timeline.getBoundingClientRect();
+    marker.time = fineMode ? clamp(fineOriginTime + ((pointerEvent.clientX - fineOriginX) / rect.width * state.duration * 0.02)) : clamp((pointerEvent.clientX - rect.left) / rect.width * state.duration);
+    video.currentTime = marker.time; renderDrag(marker, markerElement);
+  };
+  const end = () => { clearTimeout(precisionTimer); state.dragging = false; markerElement.classList.remove('precision-drag'); window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', end); window.removeEventListener('pointercancel', end); els['drag-mode'].textContent = 'HOLD 2S FOR PRECISION'; state.markers.sort((a, b) => a.time - b.time); save(); render(); };
+  window.addEventListener('pointermove', move); window.addEventListener('pointerup', end); window.addEventListener('pointercancel', end);
 }
 function download(name, content, type='text/plain;charset=utf-8') { const url = URL.createObjectURL(new Blob([content], {type})); const link=document.createElement('a'); link.href=url; link.download=name; link.click(); URL.revokeObjectURL(url); }
 function downloadBlob(name, blob) { const url = URL.createObjectURL(blob); const link=document.createElement('a'); link.href=url; link.download=name; link.click(); setTimeout(() => URL.revokeObjectURL(url), 0); }

@@ -14,6 +14,8 @@ Your media never leaves your device. The app uses the browser's local `File` and
 2. Play it and press **M** (or MARK) to capture raw cues without stopping playback.
 3. Select a cue to pause and seek to it; drag it on the timeline while watching the image scrub.
 4. Use the SPEED selector (0.25× to 2×) for fast passages, then use the frame controls or arrow keys for a small visual nudge and validate it.
+
+For timeline calibration, drag a cue normally for a fast reposition. Hold it for two seconds before moving to enter **Precision Drag**; each horizontal pixel then moves the cue at one fiftieth of the normal timeline scale while the displayed frame follows the cue.
 5. Export TXT, CSV, or a reopenable JSON project.
 
 ## Shortcuts
