@@ -18,6 +18,8 @@ Your media never leaves your device. The app uses the browser's local `File` and
 For timeline calibration, drag a cue normally for a fast reposition. Hold it for two seconds before moving to enter **Precision Drag**; each horizontal pixel then moves the cue at one fiftieth of the normal timeline scale while the displayed frame follows the cue.
 5. Export TXT, CSV, or a reopenable JSON project.
 
+Drag across an empty part of a layer timeline to select several cues in that layer. Their handles are highlighted; press `Delete` or `Backspace` to remove the selected cues together.
+
 ## Automatic local save
 
 Every cue, layer, label, validation state, and timing adjustment is saved immediately in this browser. After a refresh, import the **same local video file** again and the last session restores automatically. The original video bytes are not retained by the browser, so the file must be selected again; its name, size, and local modification date prevent attaching cues to a different file. Use the JSON export as a portable backup.
